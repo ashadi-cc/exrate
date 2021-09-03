@@ -8,7 +8,7 @@ import (
 func init() {
 	mStore := memoryStore{
 		mu:   sync.RWMutex{},
-		item: make(map[string]string),
+		item: make(map[string]interface{}),
 	}
 
 	store.Register("memory", &mStore)

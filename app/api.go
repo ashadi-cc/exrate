@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"xrate/services"
 	"xrate/services/api"
+	"xrate/services/converter"
 	"xrate/services/scheduler"
 )
 
@@ -32,9 +33,10 @@ func runApi(ctx context.Context) error {
 		cancel()
 	}()
 
-	//register services and run service
-	scheduler := scheduler.NewService()
-	apiService := api.NewService(scheduler)
+	schedulerService := scheduler.NewService()
+	converterService := converter.NewService(schedulerService)
+	apiService := api.NewService(converterService)
 
-	return services.RunServices(ctx, apiService, scheduler)
+	//register and run services
+	return services.RunServices(ctx, apiService, schedulerService, converterService)
 }

@@ -7,11 +7,11 @@ import (
 
 type memoryStore struct {
 	mu   sync.RWMutex
-	item map[string]string
+	item map[string]interface{}
 }
 
 //Set implementing driver.Set
-func (store *memoryStore) Set(key, value string) error {
+func (store *memoryStore) Set(key string, value interface{}) error {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
@@ -20,13 +20,13 @@ func (store *memoryStore) Set(key, value string) error {
 }
 
 //Get implementing driver.Get
-func (store *memoryStore) Get(key string) (string, error) {
+func (store *memoryStore) Get(key string) (interface{}, error) {
 	store.mu.RLock()
 	defer store.mu.RUnlock()
 
 	val, ok := store.item[key]
 	if !ok {
-		return "", fmt.Errorf("key: %s not found", key)
+		return nil, fmt.Errorf("key: %s not found", key)
 	}
 	return val, nil
 }

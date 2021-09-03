@@ -46,7 +46,7 @@ func (s *schedulerService) AddTask(fn TaskFn, delay time.Duration) {
 
 //Run implementing services.Service
 func (s *schedulerService) Run(ctx context.Context) error {
-	log.Println("Scheduler sercive started...")
+	log.Println("Scheduler service started...")
 	for {
 		select {
 		case <-ctx.Done():

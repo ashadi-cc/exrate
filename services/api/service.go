@@ -5,7 +5,7 @@ import (
 	"log"
 	"xrate/config"
 	"xrate/services"
-	"xrate/services/scheduler"
+	"xrate/services/converter"
 )
 
 //IApiService base methods api service interface
@@ -14,13 +14,13 @@ type IApiService interface {
 }
 
 type apiService struct {
-	sc scheduler.ISchedulerService
+	rate converter.IConverterService
 }
 
 //returns new instance api service
-func NewService(sc scheduler.ISchedulerService) IApiService {
+func NewService(rate converter.IConverterService) IApiService {
 	return &apiService{
-		sc: sc,
+		rate: rate,
 	}
 }
 
