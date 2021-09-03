@@ -16,7 +16,7 @@ func Register(name string, driver driver.Driver) {
 	driversMu.Lock()
 	defer driversMu.Unlock()
 	if driver == nil {
-		panic("storage: Register drivre is nil")
+		panic("storage: Register driver is nil")
 	}
 	drivers[name] = driver
 }
