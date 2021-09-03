@@ -1,0 +1,40 @@
+package app
+
+import (
+	"context"
+	"log"
+	"os"
+	"os/signal"
+	"xrate/services"
+	"xrate/services/api"
+	"xrate/services/scheduler"
+)
+
+//NewApi returns new instance api app
+func NewApi() App {
+	app := NewApp(context.Background())
+
+	app.SetactionFunc(func(ctx context.Context) error {
+		return runApi(ctx)
+	})
+	return app
+}
+
+//runApi run api handler
+func runApi(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		<-c
+		log.Println("graceful shutdowns...")
+		cancel()
+	}()
+
+	//register services and run service
+	scheduler := scheduler.NewService()
+	apiService := api.NewService(scheduler)
+
+	return services.RunServices(ctx, apiService, scheduler)
+}
