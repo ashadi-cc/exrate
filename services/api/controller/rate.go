@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"xrate/services/converter"
@@ -34,25 +35,57 @@ func (h RateHandler) Convert(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	currency := r.URL.Query().Get("curr")
-	c, err := convertVal(rate, currency, v)
+	from := r.URL.Query().Get("from")
+	to := r.URL.Query().Get("to")
+	c, err := convertVal(rate, from, to, v)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(c)
 }
 
-func convertVal(rate float64, currency string, value float64) (convert, error) {
+func convertVal(rate float64, from, to string, value float64) (convert, error) {
 	result := convert{}
+	fok := availableCurrency(from)
+	tok := availableCurrency(to)
+	if !fok || !tok {
+		return result, fmt.Errorf("currency not supported")
+	}
+
+	if to == from {
+		return result, fmt.Errorf("can't convert to same currency")
+	}
+
+	//simple converter eur <> usd with if condition
+	var crate float64
+	if from == "usd" && to == "eur" {
+		crate = rate
+	}
+	if from == "eur" && to == "usd" {
+		crate = 1 / rate
+	}
+
+	res := crate * value
+	result.From = from
+	result.To = to
+	result.Rate = crate
+	result.Value = res
 
 	return result, nil
 }
 
+func availableCurrency(curr string) bool {
+	curss := map[string]bool{"usd": true, "eur": true}
+	return curss[curr]
+}
+
 type convert struct {
-	Currency string  `json:"currency"`
-	Rate     float64 `json:"rate"`
-	Value    float64 `json:"value"`
+	From  string  `json:"from"`
+	To    string  `json:"to"`
+	Rate  float64 `json:"rate"`
+	Value float64 `json:"value"`
 }
