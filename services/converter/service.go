@@ -19,7 +19,6 @@ var delayTime = time.Second * 60 * 60
 
 const (
 	storekey = "rate"
-	currency = "USD"
 )
 
 type Conversion struct {
