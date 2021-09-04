@@ -6,7 +6,7 @@ import (
 )
 
 type memoryStore struct {
-	mu   sync.RWMutex
+	mu   *sync.RWMutex
 	item map[string]interface{}
 }
 

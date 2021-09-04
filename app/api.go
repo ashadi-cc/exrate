@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"xrate/helper"
 	"xrate/services"
 	"xrate/services/api"
 	"xrate/services/converter"
@@ -33,8 +34,18 @@ func runApi(ctx context.Context) error {
 		cancel()
 	}()
 
+	client, err := helper.CurrentConverterClient()
+	if err != nil {
+		return err
+	}
+
+	store, err := helper.CurrentStore()
+	if err != nil {
+		return err
+	}
+
 	schedulerService := scheduler.NewService()
-	converterService := converter.NewService(schedulerService)
+	converterService := converter.NewService(schedulerService, store, client)
 	apiService := api.NewService(converterService)
 
 	//register and run services

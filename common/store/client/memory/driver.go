@@ -7,7 +7,7 @@ import (
 
 func init() {
 	mStore := memoryStore{
-		mu:   sync.RWMutex{},
+		mu:   &sync.RWMutex{},
 		item: make(map[string]interface{}),
 	}
 

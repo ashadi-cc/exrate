@@ -5,17 +5,10 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"xrate/common/crate"
 	"xrate/common/crate/provider"
-	"xrate/common/store"
 	"xrate/common/store/driver"
-	"xrate/config"
 	"xrate/services"
 	"xrate/services/scheduler"
-
-	//register driver
-	_ "xrate/common/crate/client/fixer"
-	_ "xrate/common/store/client/memory"
 )
 
 // 1 hour
@@ -37,17 +30,7 @@ type iconvService struct {
 	client provider.Client
 }
 
-func NewService(sc scheduler.ISchedulerService) IConverterService {
-	client, err := crate.Open(config.GetClient().ApiProvider)
-	if err != nil {
-		panic(err)
-	}
-
-	store, err := store.Open(config.GetStore().Driver)
-	if err != nil {
-		panic(err)
-	}
-
+func NewService(sc scheduler.ISchedulerService, store driver.Driver, client provider.Client) IConverterService {
 	return &iconvService{
 		sc:     sc,
 		store:  store,
