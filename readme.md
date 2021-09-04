@@ -10,3 +10,6 @@
 ## API ENDPOINT LIST
 - GET /project?name=project-name to retrieve new access key by given project name
 - GET /convert?access_key=your-key&from=usd&to=eur&value=1 to convert currency 
+
+## API DOC 
+- https://documenter.getpostman.com/view/15798399/U16gNmHF
