@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"log"
+	"xrate/common/store/driver"
 	"xrate/config"
 	"xrate/services"
+	"xrate/services/api/auth"
 	"xrate/services/converter"
 )
 
@@ -14,13 +16,18 @@ type IApiService interface {
 }
 
 type apiService struct {
-	rate converter.IConverterService
+	store driver.Driver
+	rate  converter.IConverterService
+	auth  auth.Auth
 }
 
 //returns new instance api service
-func NewService(rate converter.IConverterService) IApiService {
+func NewService(rate converter.IConverterService, store driver.Driver) IApiService {
+	auth := auth.NewSimpleAuth(store)
 	return &apiService{
-		rate: rate,
+		rate:  rate,
+		store: store,
+		auth:  auth,
 	}
 }
 

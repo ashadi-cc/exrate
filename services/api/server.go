@@ -11,7 +11,8 @@ import (
 )
 
 func runServer(ctx context.Context, cfg config.Server, service *apiService) error {
-	r := addRouters(service)
+	r := newRouter(service)
+
 	srv := &http.Server{
 		Addr: cfg.Address,
 		// Good practice to set timeouts to avoid Slowloris attacks.
