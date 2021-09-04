@@ -7,5 +7,6 @@
 - run docker-compose up -d 
 - api service will available at http://localhost:8080
 
-## API ENDPOINT DOC 
-- https://documenter.getpostman.com/view/15798399/U16gNmHF
+## API ENDPOINT LIST
+- GET /project?name=project-name to retrieve new access key by given project name
+- GET /convert?access_key=your-key&from=usd&to=eur&value=1 to convert currency 
