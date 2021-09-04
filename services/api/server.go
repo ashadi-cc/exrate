@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 	"xrate/config"
@@ -10,16 +11,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-func runServer(ctx context.Context, cfg config.API) error {
+func runServer(ctx context.Context, cfg config.Server) error {
 	r := mux.NewRouter()
 
-	port := "8080"
 	srv := &http.Server{
-		Addr: "0.0.0.0:" + port,
+		Addr: cfg.Address,
 		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: cfg.WriteTimeout,
+		ReadTimeout:  cfg.ReadTimeout,
+		IdleTimeout:  cfg.IddleTimeout,
 		Handler:      r, // Pass our instance of gorilla/mux in.
 	}
 
@@ -34,6 +34,7 @@ func runServer(ctx context.Context, cfg config.API) error {
 		close(ch)
 	}()
 
+	log.Println("Server Listening on", cfg.Address)
 	if err := srv.ListenAndServe(); err != nil {
 		if errors.Is(err, http.ErrServerClosed) {
 			return nil

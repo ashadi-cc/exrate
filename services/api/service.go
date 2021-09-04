@@ -28,5 +28,5 @@ func NewService(rate converter.IConverterService) IApiService {
 func (s *apiService) Run(ctx context.Context) error {
 	log.Println("API service started...")
 
-	return runServer(ctx, config.API{})
+	return runServer(ctx, config.GetServer())
 }
