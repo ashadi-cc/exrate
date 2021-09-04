@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"xrate/common/crate/provider"
 	"xrate/config"
 
 	"github.com/pkg/errors"
@@ -27,12 +28,13 @@ type result struct {
 	Rates     map[string]float64 `json:"rates"`
 }
 
-func (c *client) Rate(ctx context.Context, curr string) (float64, error) {
-	apiUrl := fmt.Sprintf("%s/latest?access_key=%s&symbols=%s", baseApiUrl, c.cfg.ApiKey, curr)
-	log.Println("get rate from", apiUrl)
+func (c *client) Rate(ctx context.Context) (provider.Rate, error) {
+	var rate provider.Rate
+	apiUrl := fmt.Sprintf("%s/latest?access_key=%s", baseApiUrl, c.cfg.ApiKey)
+	log.Println("fixer: get rate from", apiUrl)
 	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
 	if err != nil {
-		return -1, errors.Wrapf(err, "unable to create request %s", apiUrl)
+		return rate, errors.Wrapf(err, "unable to create request %s", apiUrl)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
@@ -41,30 +43,32 @@ func (c *client) Rate(ctx context.Context, curr string) (float64, error) {
 	req = req.WithContext(ctx)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return -1, errors.Wrap(err, "unable to create request")
+		return rate, errors.Wrap(err, "unable to create request")
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return -1, errors.Wrap(err, "unable to read body")
+		return rate, errors.Wrap(err, "unable to read body")
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return -1, fmt.Errorf("unable to get rate %s", string(body))
+		return rate, fmt.Errorf("unable to get rate %s", string(body))
 	}
 
 	var r result
 	if err := json.Unmarshal(body, &r); err != nil {
-		return -1, errors.Wrap(err, "unable to decode body")
+		return rate, errors.Wrap(err, "unable to decode body")
 	}
 
 	if !r.Success {
-		return -1, fmt.Errorf("%v", r)
+		return rate, fmt.Errorf("%v", r)
 	}
 
-	if v, ok := r.Rates[curr]; ok {
-		return v, nil
+	rate = provider.Rate{
+		Base:  r.Base,
+		Rates: r.Rates,
 	}
 
-	return 0, nil
+	_ = json.NewEncoder(log.Writer()).Encode(rate)
+	return rate, nil
 }

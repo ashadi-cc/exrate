@@ -15,5 +15,5 @@ func addRouters(s *apiService) *mux.Router {
 
 func addRateRouters(s *apiService, r *mux.Router) {
 	c := controller.NewRateHandler(s.rate)
-	r.HandleFunc("/rate", c.Convert).Methods(http.MethodGet)
+	r.HandleFunc("/convert", c.Convert).Methods(http.MethodGet)
 }
