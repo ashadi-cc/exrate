@@ -46,7 +46,7 @@ func runApi(ctx context.Context) error {
 
 	schedulerService := scheduler.NewService()
 	converterService := converter.NewService(schedulerService, store, client)
-	apiService := api.NewService(converterService)
+	apiService := api.NewService(converterService, store)
 
 	//register and run services
 	return services.RunServices(ctx, apiService, schedulerService, converterService)
