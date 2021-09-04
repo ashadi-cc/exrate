@@ -7,13 +7,11 @@ import (
 	"time"
 	"xrate/config"
 
-	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
 
-func runServer(ctx context.Context, cfg config.Server) error {
-	r := mux.NewRouter()
-
+func runServer(ctx context.Context, cfg config.Server, service *apiService) error {
+	r := addRouters(service)
 	srv := &http.Server{
 		Addr: cfg.Address,
 		// Good practice to set timeouts to avoid Slowloris attacks.
@@ -44,5 +42,4 @@ func runServer(ctx context.Context, cfg config.Server) error {
 	}
 
 	return <-ch
-
 }
