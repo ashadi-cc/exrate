@@ -21,6 +21,7 @@ const (
 	storekey = "rate"
 )
 
+//Conversion to hold convertion data
 type Conversion struct {
 	From   string  `json:"from"`
 	To     string  `json:"to"`
@@ -29,9 +30,12 @@ type Conversion struct {
 	Result float64 `json:"result"`
 }
 
+//IConverterService base converter methods
 type IConverterService interface {
 	services.Service
+	//Rate returns currency rates
 	Rate() (provider.Rate, error)
+	//Convert convert currency
 	Convert(from, to string, value float64) (Conversion, error)
 }
 
@@ -41,6 +45,7 @@ type iconvService struct {
 	client provider.Client
 }
 
+//NewService returns new converter service instance
 func NewService(sc scheduler.ISchedulerService, store driver.Driver, client provider.Client) IConverterService {
 	return &iconvService{
 		sc:     sc,
@@ -49,9 +54,10 @@ func NewService(sc scheduler.ISchedulerService, store driver.Driver, client prov
 	}
 }
 
+//Run implementing Services.Run
 func (s *iconvService) Run(ctx context.Context) error {
 	log.Println("Converter service started...")
-	//get rates and store rate in background with scheduler service
+	//get rates and update rate in background with scheduler service
 	s.sc.AddTask(s.storeRate, delayTime)
 
 	//block until context is done
@@ -59,6 +65,7 @@ func (s *iconvService) Run(ctx context.Context) error {
 	return nil
 }
 
+//Rate implementing IConverterService.Rate
 func (s *iconvService) Rate() (rate provider.Rate, err error) {
 	i, err := s.store.Get(storekey)
 	if err != nil {
@@ -73,6 +80,7 @@ func (s *iconvService) Rate() (rate provider.Rate, err error) {
 	return rate, nil
 }
 
+//Covert implementing IConverterService.Convert
 func (s iconvService) Convert(from, to string, value float64) (Conversion, error) {
 	var c Conversion
 

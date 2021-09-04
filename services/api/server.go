@@ -24,6 +24,7 @@ func runServer(ctx context.Context, cfg config.Server, service *apiService) erro
 
 	ch := make(chan error, 1)
 	go func() {
+		//waiting other services are closed
 		<-ctx.Done()
 		ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 		defer cancel()

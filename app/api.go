@@ -8,6 +8,7 @@ import (
 	"xrate/helper"
 	"xrate/services"
 	"xrate/services/api"
+	"xrate/services/api/auth"
 	"xrate/services/converter"
 	"xrate/services/scheduler"
 )
@@ -44,9 +45,12 @@ func runApi(ctx context.Context) error {
 		return err
 	}
 
+	simpleAuth := auth.NewSimpleAuth(store)
+
+	//create services
 	schedulerService := scheduler.NewService()
 	converterService := converter.NewService(schedulerService, store, client)
-	apiService := api.NewService(converterService, store)
+	apiService := api.NewService(converterService, simpleAuth, store)
 
 	//register and run services
 	return services.RunServices(ctx, apiService, schedulerService, converterService)

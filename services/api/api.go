@@ -22,8 +22,7 @@ type apiService struct {
 }
 
 //returns new instance api service
-func NewService(rate converter.IConverterService, store driver.Driver) IApiService {
-	auth := auth.NewSimpleAuth(store)
+func NewService(rate converter.IConverterService, auth auth.Auth, store driver.Driver) IApiService {
 	return &apiService{
 		rate:  rate,
 		store: store,

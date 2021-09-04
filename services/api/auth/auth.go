@@ -11,8 +11,11 @@ const storeKey = "access_key"
 
 type accessKey map[string]string
 
+//Auth base auth methods
 type Auth interface {
+	//Create returns new access key by given project name
 	Create(projectName string) (string, error)
+	//Validate access key
 	Validate(autKey string) bool
 }
 
@@ -20,10 +23,12 @@ type simpleAuth struct {
 	store driver.Driver
 }
 
+//NewSimpleAuth returns a simple auth instance
 func NewSimpleAuth(s driver.Driver) Auth {
 	return &simpleAuth{store: s}
 }
 
+//Create implementing Auth.Create
 func (a *simpleAuth) Create(projectName string) (string, error) {
 	lists := accessKey{}
 	i, err := a.store.Get(storeKey)
@@ -52,6 +57,7 @@ func (a *simpleAuth) Create(projectName string) (string, error) {
 	return token, nil
 }
 
+//Validate implementing Auth.Validate
 func (a *simpleAuth) Validate(authKey string) bool {
 	i, err := a.store.Get(storeKey)
 	if err != nil {
