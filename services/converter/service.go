@@ -51,6 +51,7 @@ func NewService(sc scheduler.ISchedulerService, store driver.Driver, client prov
 
 func (s *iconvService) Run(ctx context.Context) error {
 	log.Println("Converter service started...")
+	//get rates and store rate in background with scheduler service
 	s.sc.AddTask(s.storeRate, delayTime)
 
 	//block until context is done
