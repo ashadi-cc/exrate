@@ -106,16 +106,16 @@ func (s iconvService) Convert(from, to string, value float64) (Conversion, error
 	}
 
 	var crate float64
-	if toBase {
-		v, ok := rates.Rates[from]
+	if fromBase {
+		v, ok := rates.Rates[to]
 		if !ok {
 			return c, fmt.Errorf("currency not supported: %s", from)
 		}
 		crate = v
 	}
 
-	if fromBase {
-		v, ok := rates.Rates[to]
+	if toBase {
+		v, ok := rates.Rates[from]
 		if !ok {
 			return c, fmt.Errorf("currency not supported: %s", to)
 		}
