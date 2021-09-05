@@ -7,6 +7,6 @@ services:
     ports: 
       - "8080:8080"
     volumes: 
-      - .env:/app/.env
+      - ./.env:/app/.env
     working_dir: /app
     command: ["./api"]
