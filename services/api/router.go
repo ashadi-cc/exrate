@@ -5,7 +5,6 @@ import (
 	"xrate/services/api/auth"
 	"xrate/services/api/controller"
 	"xrate/services/api/middleware"
-	"xrate/services/converter"
 
 	"github.com/gorilla/mux"
 )
@@ -16,12 +15,12 @@ func newRouter(s *apiService) *mux.Router {
 	addMiddlewares(s, r)
 
 	//add routers
-	addRateRouters(s.rate, r)
+	addRateRouters(s, r)
 	addProjectRouters(s.auth, r)
 	return r
 }
 
-func addRateRouters(s converter.IConverterService, r *mux.Router) {
+func addRateRouters(s *apiService, r *mux.Router) {
 	c := controller.NewRateHandler(s)
 	r.HandleFunc("/convert", c.Convert).Methods(http.MethodGet)
 }
