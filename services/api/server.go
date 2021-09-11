@@ -26,6 +26,7 @@ func runServer(ctx context.Context, cfg config.Server, service *apiService) erro
 	go func() {
 		//waiting other services are closed
 		<-ctx.Done()
+		log.Println("api:gracefully shutdown...")
 		ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 		defer cancel()
 		if err := srv.Shutdown(ctx); err != nil {

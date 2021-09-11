@@ -16,7 +16,7 @@ import (
 const rateStoreKey = "rate"
 
 // 1 hour
-var delayTime = time.Second * 60 * 60
+var delayTime = time.Second * 30
 
 //IApiService base methods api service interface
 type IApiService interface {
