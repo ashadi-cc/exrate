@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"time"
+
 	"xrate/services"
 )
 
@@ -15,12 +16,14 @@ type ISchedulerService interface {
 	services.Service
 
 	// Add adding task to scheduler by given task and delay time
-	AddTask(t TaskFn, delay time.Duration)
+	AddTask(t TaskFn, delay time.Duration, maxRetryFromPanic int)
 }
 
 type task struct {
-	fn    TaskFn
-	delay time.Duration
+	fn                TaskFn
+	delay             time.Duration
+	maxRetryFromPanic int
+	countPanic        int
 }
 
 type schedulerService struct {
@@ -37,10 +40,11 @@ func NewService() ISchedulerService {
 }
 
 // AddTask implementing ISchedulerService.AddTask
-func (s *schedulerService) AddTask(fn TaskFn, delay time.Duration) {
+func (s *schedulerService) AddTask(fn TaskFn, delay time.Duration, maxRetryFromPanic int) {
 	t := &task{
-		fn:    fn,
-		delay: delay,
+		fn:                fn,
+		delay:             delay,
+		maxRetryFromPanic: maxRetryFromPanic,
 	}
 
 	s.ch <- t
@@ -68,10 +72,26 @@ func (s *schedulerService) createWorker(ctx context.Context, t *task) {
 		case <-ctx.Done():
 			return
 		default:
-			if err := t.fn(ctx); err != nil {
-				log.Println("failed when run task with error", err)
-			}
 			time.Sleep(t.delay)
+			s.runFn(ctx, t)
+			if t.countPanic > t.maxRetryFromPanic {
+				return
+			}
 		}
+	}
+}
+
+func (s *schedulerService) runFn(ctx context.Context, t *task) {
+	defer func(t *task) {
+		p := recover()
+		if p == nil {
+			return
+		}
+		log.Println("job raised panic")
+		t.countPanic = t.countPanic + 1
+	}(t)
+
+	if err := t.fn(ctx); err != nil {
+		log.Println("failed when run task with error", err)
 	}
 }

@@ -18,7 +18,7 @@ const rateStoreKey = "rate"
 // 1 hour
 var delayTime = time.Second * 30
 
-//IApiService base methods api service interface
+// IApiService base methods api service interface
 type IApiService interface {
 	services.Service
 	GetRate() (rate provider.Rate, err error)
@@ -31,7 +31,7 @@ type apiService struct {
 	client    provider.Client
 }
 
-//returns new instance api service
+// returns new instance api service
 func NewService(sceduler scheduler.ISchedulerService, client provider.Client, auth auth.Auth, store driver.Driver) IApiService {
 	return &apiService{
 		scheduler: sceduler,
@@ -41,18 +41,18 @@ func NewService(sceduler scheduler.ISchedulerService, client provider.Client, au
 	}
 }
 
-//Run implementing services.Service
+// Run implementing services.Service
 func (s *apiService) Run(ctx context.Context) error {
-	//get rates in backgrond and store it
+	// get rates in backgrond and store it
 	s.getRates()
 
-	//run api service
+	// run api service
 	log.Println("API service started...")
 	return runServer(ctx, config.GetServer(), s)
 }
 
 func (s *apiService) getRates() {
-	s.scheduler.AddTask(s.storeRate, delayTime)
+	s.scheduler.AddTask(s.storeRate, delayTime, 0)
 }
 
 func (s *apiService) storeRate(ctx context.Context) error {
