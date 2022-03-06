@@ -96,7 +96,9 @@ func Test_schedulerService_AddTask(t *testing.T) {
 			s := NewService()
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
-			go s.Run(ctx)
+			go func() {
+				assert.NoError(t, s.Run(ctx))
+			}()
 			s.AddTask(tt.args.fn, tt.args.delay, tt.args.maxRetryFromPanic)
 			<-ctx.Done()
 			assert.Equal(t, tt.expectedRunCount, runCount)
