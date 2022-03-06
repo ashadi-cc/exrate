@@ -41,6 +41,9 @@ func NewService() ISchedulerService {
 
 // AddTask implementing ISchedulerService.AddTask
 func (s *schedulerService) AddTask(fn TaskFn, delay time.Duration, maxRetryFromPanic int) {
+	if maxRetryFromPanic > 1 {
+		maxRetryFromPanic = maxRetryFromPanic - 1
+	}
 	t := &task{
 		fn:                fn,
 		delay:             delay,
@@ -74,7 +77,8 @@ func (s *schedulerService) createWorker(ctx context.Context, t *task) {
 		default:
 			time.Sleep(t.delay)
 			s.runFn(ctx, t)
-			if t.countPanic > t.maxRetryFromPanic {
+			if (t.maxRetryFromPanic > -1) && (t.countPanic > t.maxRetryFromPanic) {
+				log.Println("exit: max retry from panic reached")
 				return
 			}
 		}
@@ -87,7 +91,7 @@ func (s *schedulerService) runFn(ctx context.Context, t *task) {
 		if p == nil {
 			return
 		}
-		log.Println("job raised panic")
+		log.Println("job raised panic:", p)
 		t.countPanic = t.countPanic + 1
 	}(t)
 
